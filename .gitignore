@@ -1,0 +1,3 @@
+model/data/anuncio/*
+model/data/sem_anuncio/*
+training_data/images/**
