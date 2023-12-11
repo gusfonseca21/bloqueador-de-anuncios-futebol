@@ -3,9 +3,11 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, Flatten
-##import imghdr
-##import cv2
-##import os
+from tensorflow.keras.metrics import Precision, Recall, BinaryAccuracy
+from tensorflow.keras.models import load_model
+import imghdr
+import cv2
+import os
 
 # 0 = ANUNCIO
 # 1 = SEM ANUNCIO
@@ -43,7 +45,7 @@ model.add(Dense(1, activation='sigmoid'))
 model.compile('adam', loss=tf.losses.BinaryCrossentropy(), metrics=['accuracy'])
 
 logdir = "logs"
-tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir = logdir)
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
 hist = model.fit(train, epochs=20, validation_data=val, callbacks=[tensorboard_callback])
 
 fig = plt.figure()
@@ -53,4 +55,17 @@ fig.suptitle('Loss', fontsize=20)
 plt.legend(loc='upper left')
 plt.show()
 
-#CONTINUAR EM 01:08:00 https://www.youtube.com/watch?v=jztwpsIzEGc
+precision = Precision()
+recall = Recall()
+accuracy = BinaryAccuracy()
+
+for batch in test.as_numpy_iterator():
+    x, y = batch
+    yhat = model.predict(x)
+    precision.update_state(y, yhat)
+    recall.update_state = (y, yhat)
+    accuracy.update_state(y, yhat)
+
+print(f'Precision: {precision.result().numpy()}, Recall: {recall.result().numpy()}, Accuracy: {accuracy.result().numpy()}')
+
+model.save(os.path.join('models', 'detector_modelo.h5'))
